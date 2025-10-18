@@ -33,12 +33,19 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # Django core
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "blog_app",
+    # Terceros
+    "import_export",  # Habilita exportación a CSV/XLSX desde admin
+    "tinymce",  # Para campos HTML en admin.
+    "rest_framework",
+    # APP
     "blog_app",
 ]
 
@@ -119,6 +126,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = "static/"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = (
+    BASE_DIR / "media"
+)  # Para imágenes de posts (Pillow gestiona las imágenes).
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
