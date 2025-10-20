@@ -15,12 +15,26 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from rest_framework import routers
+
+from blog_app.api import BlogViewSet, PostViewSet, RegisterView, TagViewSet
+
 from django.contrib import admin
 from django.urls import include, path
+
+
+# Crear router automáticamente
+router = routers.DefaultRouter()
+router.register(r"blogs", BlogViewSet)
+router.register(r"posts", PostViewSet)
+router.register(r"tags", TagViewSet)
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),  # Panel de administración
     path("tinymce/", include("tinymce.urls")),  # Rutas de TinyMCE
-    path("", include("blog_app.urls")),  # Rutas de la app del blog
+    path("api/", include(router.urls)),  # API REST
+    path("api-auth/", include("rest_framework.urls")),  # Login para DRF
+    path("api/register/", RegisterView.as_view(), name="register"),  # registro
+    path("", include("blog_app.urls")),  # Rutas normales del blog
 ]

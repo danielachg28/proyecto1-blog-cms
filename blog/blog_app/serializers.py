@@ -2,6 +2,8 @@ from rest_framework import serializers
 
 from .models import Blog, Post, Tag
 
+from django.contrib.auth.models import User
+
 
 # Serializador para Tag
 class TagSerializer(serializers.ModelSerializer):
@@ -27,3 +29,19 @@ class BlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blog
         fields = ["id", "title", "description", "user", "posts"]
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ["username", "email", "password"]
+
+    def create(self, validated_data):  # noqa: PLR6301
+        user = User.objects.create_user(  # Para guardar la contraseña cifrada
+            username=validated_data["username"],
+            email=validated_data.get("email"),
+            password=validated_data["password"],
+        )
+        return user
