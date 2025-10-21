@@ -27,14 +27,42 @@ class BlogViewSet(
 
 # ViewSet para Post
 class PostViewSet(viewsets.ModelViewSet):
+    """
+    - Los usuarios autenticados pueden crear y gestionar sus propios posts.
+    - Cada post se asocia automáticamente al blog del usuario autenticado.
+    - Los usuarios solo ven sus propios posts (el admin puede verlos todos).
+    """
+
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    # Asociar el post al blog del usuario autenticado
+    def get_queryset(self):
+        """
+        Define qué posts se devuelven según el usuario que hace la petición.
+
+        - Si el usuario es administrador → ve todos los posts.
+        - Si está autenticado → ve solo sus posts.
+        - Si no está autenticado → no ve ninguno.
+        """
+        user = self.request.user
+
+        if user.is_superuser:
+            # El admin puede ver todos los posts
+            return Post.objects.all()
+        elif user.is_authenticated:
+            # Usuario normal: solo ve los posts de su blog
+            return Post.objects.filter(blog__user=user)
+        else:
+            # Usuario no autenticado: no ve nada
+            return Post.objects.none()
+
     def perform_create(self, serializer):
-        blog = self.request.user.blog  # Obtiene el blog del usuario autenticado
-        serializer.save(blog=blog)  # Guarda el post con el blog del usuario autenticado
+        """
+        Al crear un post (POST), se ejecuta automáticamente este método.
+        Asocia el post al blog del usuario autenticado antes de guardarlo.
+        """
+        serializer.save(blog=self.request.user.blog)
 
 
 # ViewSet para Tag
