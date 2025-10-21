@@ -37,13 +37,10 @@ class PostAdmin(ImportExportModelAdmin):
     list_display = ("title", "blog", "created_at", "updated_at")
 
     # Qué filtros laterales mostrar
-    list_filter = ("blog", "created_at", "tags")
+    list_filter = ("created_at", "tags")
 
     # Campos por los que se puede buscar
     search_fields = ("title", "content")
-
-    # Filtro jerárquico por fecha
-    date_hierarchy = "created_at"
 
     # Usa TinyMCE para el campo de texto "content"
     formfield_overrides = {
@@ -55,12 +52,12 @@ class PostAdmin(ImportExportModelAdmin):
     # ------------------------------------------------------
     def get_queryset(self, request):
         # Obtiene todos los posts
-        qs = super().get_queryset(request)
+        queryset = super().get_queryset(request)
         # Si es superusuario, ve todos los posts
         if request.user.is_superuser:
-            return qs
+            return queryset
         # Si no, solo ve los de su propio blog
-        return qs.filter(blog__user=request.user)
+        return queryset.filter(blog__user=request.user)
 
     # ------------------------------------------------------
     # 3.5 Asignar el blog automáticamente al crear un post
@@ -68,7 +65,7 @@ class PostAdmin(ImportExportModelAdmin):
     def save_model(self, request, obj, form, change):  # noqa: PLR6301
         # Si el post es nuevo (no tiene id todavía)
         if not obj.pk:
-            # Asignamos el blog del usuario conectado
+            # Asigna el blog del usuario conectado
             obj.blog = request.user.blog
         obj.save()
 
