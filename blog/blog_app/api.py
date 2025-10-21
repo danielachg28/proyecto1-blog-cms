@@ -24,6 +24,28 @@ class BlogViewSet(
         permissions.IsAuthenticatedOrReadOnly
     ]  # Indica los permisos que se usarán para acceder a los datos
 
+    # define qué elementos se mostrarán según el usuario logueado
+    def get_queryset(self):
+        """
+        🔹 Si el usuario es superuser, ve todos los blogs.
+        🔹 Si es un usuario normal, solo ve su propio blog.
+        """
+        user = self.request.user  # Usuario autenticado (o anónimo si no está logueado)
+        # Si el usuario no está autenticado, devuelve un queryset vacío
+        if not user.is_authenticated:
+            return Blog.objects.none()
+
+        # Si es superusuario, puede ver todos los blogs
+        if user.is_superuser:
+            return Blog.objects.all()
+
+        # Usuario normal: solo ve su propio blog
+        return Blog.objects.filter(user=user)
+
+    # se ejecuta automáticamente cuando se crea un nuevo blog (POST
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
 
 # ViewSet para Post
 class PostViewSet(viewsets.ModelViewSet):
@@ -48,21 +70,26 @@ class PostViewSet(viewsets.ModelViewSet):
         user = self.request.user
 
         if user.is_superuser:
-            # El admin puede ver todos los posts
+            # Superusuarios pueden ver todos los posts de todos los blogs
             return Post.objects.all()
-        elif user.is_authenticated:
-            # Usuario normal: solo ve los posts de su blog
-            return Post.objects.filter(blog__user=user)
-        else:
-            # Usuario no autenticado: no ve nada
-            return Post.objects.none()
+        if hasattr(user, "blog"):  # Verifica si el usuario tiene un blog asociado
+            # Devuelve solo los posts del blog del usuario actual
+            return Post.objects.filter(blog=user.blog)
+        # Si el usuario no tiene blog, no debe ver ningún post
+        return Post.objects.none()
 
     def perform_create(self, serializer):
-        """
-        Al crear un post (POST), se ejecuta automáticamente este método.
-        Asocia el post al blog del usuario autenticado antes de guardarlo.
-        """
-        serializer.save(blog=self.request.user.blog)
+        user = self.request.user
+
+        # Crea el blog si el usuario no tiene uno
+        blog, created = Blog.objects.get_or_create(
+            user=user,
+            defaults={
+                "title": f"Blog de {user.username}",
+                "description": "Blog creado automáticamente.",
+            },
+        )
+        serializer.save(blog=blog)
 
 
 # ViewSet para Tag

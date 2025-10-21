@@ -49,10 +49,14 @@ INSTALLED_APPS = [
     "blog_app",
 ]
 
-# Ver contenido sin estar logueado. Crear/editar si se está autenticado
+
 REST_FRAMEWORK = {
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",  # interfaz web interactiva
+    ),
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticatedOrReadOnly"
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly"  # Ver contenido sin estar logueado. Crear/editar si se está autenticado
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
