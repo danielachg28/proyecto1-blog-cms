@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "import_export",  # Habilita exportación a CSV/XLSX desde admin
     "tinymce",  # Para campos HTML en admin.
     "rest_framework",
+    "drf_yasg",  # Para generar la documentación de la API
     # APP
     "blog_app",
 ]

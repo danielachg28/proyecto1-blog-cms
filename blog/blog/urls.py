@@ -15,7 +15,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from rest_framework import routers
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions, routers
 
 from blog_app.api import BlogViewSet, PostViewSet, RegisterView, TagViewSet
 
@@ -25,7 +27,7 @@ from django.urls import include, path
 
 # Crear router automáticamente
 router = routers.DefaultRouter()
-router.register(r"blogs", BlogViewSet)
+router.register(r"blogs", BlogViewSet)  # r" es para escapar el carácter "
 router.register(r"posts", PostViewSet)
 router.register(r"tags", TagViewSet)
 
@@ -37,4 +39,26 @@ urlpatterns = [
     path("api-auth/", include("rest_framework.urls")),  # Login para DRF
     path("api/register/", RegisterView.as_view(), name="register"),  # registro
     path("", include("blog_app.urls")),  # Rutas normales del blog
+]
+# Generar la documentación de la API con Swagger
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Blog CMS API",
+        default_version="v1",
+        description="Documentación de la API del Blog CMS",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="contacto@blogcms.com"),
+        license=openapi.License(name="MIT License"),
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny],
+)
+
+urlpatterns += [
+    path(
+        "swagger/",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
+    ),
+    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
 ]
