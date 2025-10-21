@@ -29,6 +29,9 @@ class BlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blog
         fields = ["id", "title", "description", "user", "posts"]
+        read_only_fields = [
+            "user"
+        ]  # esto hace que no sea obligatorio enviarlo al crear un blog
 
 
 class RegisterSerializer(serializers.ModelSerializer):
