@@ -1,6 +1,6 @@
 import factory
 
-from blog_app.models import Blog, Post
+from blog_app.models import Blog, Post, Tag
 
 from django.contrib.auth.models import User
 
@@ -38,3 +38,12 @@ class PostFactory(factory.django.DjangoModelFactory):
     title = factory.Faker("sentence")  # Título aleatorio
     content = factory.Faker("paragraph")  # Contenido falso
     blog = factory.SubFactory(BlogFactory)  # Asocia automáticamente un blog
+
+
+# Tag de prueba
+class TagFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Tag
+
+    name = factory.Faker("word")  # Nombre de la etiqueta
+    posts = factory.SubFactory(PostFactory)  # Asocia automáticamente un post
