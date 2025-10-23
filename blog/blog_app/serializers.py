@@ -7,13 +7,23 @@ from django.contrib.auth.models import User
 
 # Serializador para Tag
 class TagSerializer(serializers.ModelSerializer):
+    posts = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Post.objects.all(), required=False
+    )
+
     class Meta:
         model = Tag
         fields = ["id", "name", "posts"]
 
-    def validate_posts(self, posts):
-        """Asegura que todos los posts pertenecen al usuario autenticado"""
+    def validate_posts(
+        self, posts
+    ):  # Validar que los posts pertenecen al usuario autenticado
+
         user = self.context["request"].user
+
+        if not user.is_authenticated:
+            raise serializers.ValidationError("No estás autenticado.")
+
         for post in posts:
             if post.blog.user != user and not user.is_superuser:
                 raise serializers.ValidationError(
