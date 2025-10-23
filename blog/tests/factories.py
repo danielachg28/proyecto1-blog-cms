@@ -46,4 +46,8 @@ class TagFactory(factory.django.DjangoModelFactory):
         model = Tag
 
     name = factory.Faker("word")  # Nombre de la etiqueta
-    posts = factory.SubFactory(PostFactory)  # Asocia automáticamente un post
+
+    @factory.post_generation  # Asocia posts después de crear el tag
+    def posts(self, create, extracted, **kwargs):
+        if create and extracted:  # Si se pasan posts, los añade al tag
+            self.posts.add(*extracted)
