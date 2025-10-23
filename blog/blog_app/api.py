@@ -27,8 +27,8 @@ class BlogViewSet(
     # define qué elementos se mostrarán según el usuario logueado
     def get_queryset(self):
         """
-        🔹 Si el usuario es superuser, ve todos los blogs.
-        🔹 Si es un usuario normal, solo ve su propio blog.
+        Si el usuario es superuser, ve todos los blogs.
+        Si es un usuario normal, solo ve su propio blog.
         """
         user = self.request.user  # Usuario autenticado (o anónimo si no está logueado)
         # Si el usuario no está autenticado, devuelve un queryset vacío
