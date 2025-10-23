@@ -30,8 +30,8 @@ router = routers.DefaultRouter()
 router.register(
     r"blogs", BlogViewSet, basename="blog"
 )  # r" es para escapar el carácter ". basename si viewset ya no devuelve Blog.objects.all() por defecto
-router.register(r"posts", PostViewSet)
-router.register(r"tags", TagViewSet)
+router.register(r"posts", PostViewSet, basename="post")
+router.register(r"tags", TagViewSet, basename="tag")
 
 
 urlpatterns = [
