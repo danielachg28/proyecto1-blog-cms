@@ -16,9 +16,7 @@ from django.contrib.auth.models import User
 class BlogViewSet(
     viewsets.ModelViewSet
 ):  # viewset que permite crear, leer, actualizar y eliminar modelos
-    queryset = (
-        Blog.objects.all()
-    )  # Indica que datos manejará el viewset (en este caso, todos los blogs)
+    queryset = Blog.objects.none()  # vacío por defecto
     serializer_class = BlogSerializer  # Indica el serializador que se usará para convertir los datos a JSON
     permission_classes = [
         permissions.IsAuthenticatedOrReadOnly
@@ -69,19 +67,23 @@ class PostViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
 
+        # No autenticado → no ve nada
+        if not user.is_authenticated:
+            return Post.objects.none()
+
+        # Superusuario → ve todo
         if user.is_superuser:
-            # Superusuarios pueden ver todos los posts de todos los blogs
             return Post.objects.all()
-        if hasattr(user, "blog"):  # Verifica si el usuario tiene un blog asociado
-            # Devuelve solo los posts del blog del usuario actual
-            return Post.objects.filter(blog=user.blog)
-        # Si el usuario no tiene blog, no debe ver ningún post
-        return Post.objects.none()
+
+        # Usuario normal → solo sus posts
+        return Post.objects.filter(blog__user=user)
 
     def perform_create(self, serializer):
+        """
+        Si el usuario no tiene blog, se le crea automáticamente.
+        Cada nuevo post se asocia al blog del usuario.
+        """
         user = self.request.user
-
-        # Crea el blog si el usuario no tiene uno
         blog, created = Blog.objects.get_or_create(
             user=user,
             defaults={
@@ -94,9 +96,22 @@ class PostViewSet(viewsets.ModelViewSet):
 
 # ViewSet para Tag
 class TagViewSet(viewsets.ModelViewSet):
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if not user.is_authenticated:
+            return Tag.objects.none()
+
+        if user.is_superuser:
+            return Tag.objects.all()
+
+        # Solo tags asociados a posts del blog del usuario
+        return Tag.objects.filter(posts__blog__user=user).distinct()
 
 
 class RegisterView(generics.CreateAPIView):

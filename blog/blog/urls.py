@@ -27,7 +27,9 @@ from django.urls import include, path
 
 # Crear router automáticamente
 router = routers.DefaultRouter()
-router.register(r"blogs", BlogViewSet)  # r" es para escapar el carácter "
+router.register(
+    r"blogs", BlogViewSet, basename="blog"
+)  # r" es para escapar el carácter ". basename si viewset ya no devuelve Blog.objects.all() por defecto
 router.register(r"posts", PostViewSet)
 router.register(r"tags", TagViewSet)
 
