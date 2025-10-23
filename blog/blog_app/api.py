@@ -24,23 +24,17 @@ class BlogViewSet(
 
     # define qué elementos se mostrarán según el usuario logueado
     def get_queryset(self):
-        """
-        Si el usuario es superuser, ve todos los blogs.
-        Si es un usuario normal, solo ve su propio blog.
-        """
-        user = self.request.user  # Usuario autenticado (o anónimo si no está logueado)
-        # Si el usuario no está autenticado, devuelve un queryset vacío
+        user = self.request.user
+
         if not user.is_authenticated:
             return Blog.objects.none()
 
-        # Si es superusuario, puede ver todos los blogs
         if user.is_superuser:
             return Blog.objects.all()
 
-        # Usuario normal: solo ve su propio blog
         return Blog.objects.filter(user=user)
 
-    # se ejecuta automáticamente cuando se crea un nuevo blog (POST
+    # Asocia automáticamente el blog al usuario autenticado
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
@@ -96,22 +90,57 @@ class PostViewSet(viewsets.ModelViewSet):
 
 # ViewSet para Tag
 class TagViewSet(viewsets.ModelViewSet):
-
     queryset = Tag.objects.all()
+    """
+    Vista para gestionar los Tags (etiquetas) asociados a los posts.
+
+    - Los usuarios autenticados pueden crear, ver y editar sus propios tags.
+    - Los superusuarios pueden ver y modificar todos los tags.
+    - Los usuarios no autenticados no pueden ver ni crear nada.
+    """
+
     serializer_class = TagSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
+        """
+        Define qué tags puede ver el usuario según su rol.
+        """
         user = self.request.user
 
+        # Si el usuario no está autenticado, no ve ningún tag
         if not user.is_authenticated:
             return Tag.objects.none()
 
+        # El superusuario puede ver todos los tags
         if user.is_superuser:
             return Tag.objects.all()
 
-        # Solo tags asociados a posts del blog del usuario
+        # Usuario normal: solo ve los tags asociados a sus propios posts
         return Tag.objects.filter(posts__blog__user=user).distinct()
+
+    def perform_create(self, serializer):
+        """
+        Al crear un tag, valida que todos los posts seleccionados
+        pertenezcan al usuario autenticado.
+        """
+        user = self.request.user
+        posts = serializer.validated_data.get("posts", [])
+
+        # Si alguno de los posts no pertenece al usuario, lanza error
+        for post in posts:
+            if post.blog.user != user and not user.is_superuser:
+                raise PermissionError(
+                    "No puedes asignar tags a posts que no son tuyos."
+                )
+
+        serializer.save()
+
+    def get_serializer_context(self):
+        """Pasa el request al serializer para filtrar posts dinámicamente"""
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
 
 
 class RegisterView(generics.CreateAPIView):
