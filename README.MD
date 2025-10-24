@@ -168,8 +168,7 @@ POST /api/posts/
 
 {
   "title": "Primer post",
-  "content": "Contenido del post",
-  "tags": [1]
+  "content": "Contenido del post"
 }
 
 ---
@@ -188,18 +187,28 @@ Ambas interfaces permiten probar los endpoints directamente desde el navegador.
 ```
 blog/
 ├── blog/                  # Configuración del proyecto
+│   ├── __init__.py
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
+│   └── asgi.py
 ├── blog_app/              # Aplicación principal
+│   ├── __init__.py
+│   ├── apps.py
 │   ├── models.py
 │   ├── serializers.py
 │   ├── api.py
 │   ├── admin.py
 │   ├── urls.py
 │   └── views.py
-│   └── tests.py
+│   └── permissions.py
+├── blog_app/            # tests unitarios
+│   ├── __init__.py
+│   └── factories.py
+│   └── test_api.py
+│   └── test_models.py
 ├── manage.py
+├── pytest.py
 └── requirements.txt
 ```
 
