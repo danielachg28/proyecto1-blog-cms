@@ -18,28 +18,22 @@
             "auth": {
               "basic": [
                 {
+                  "key": "username",
+                  "type": "string",
+                  "value": "usuario"
+                },
+                {
                   "key": "password",
                   "type": "string",
                   "value": "1234"
-                },
-                {
-                  "key": "username",
-                  "type": "string",
-                  "value": "pepe2"
                 }
               ],
               "type": "basic"
             },
             "body": {
               "mode": "raw",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              },
-              "raw": ""
+              "raw": "{\n  \"username\": \"usuario\",\n  \"email\": \"usuario@usuario.com\",\n  \"password\": \"1234\"\n}"
             },
-            "description": "GET",
             "header": [],
             "method": "GET",
             "url": {
@@ -51,12 +45,64 @@
               ],
               "path": [
                 "api",
-                "blogs",
                 ""
               ],
               "port": "8000",
               "protocol": "http",
-              "raw": "http://127.0.0.1:8000/api/blogs/"
+              "raw": "http://127.0.0.1:8000/api/"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get posts",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "basic": [
+                {
+                  "key": "username",
+                  "type": "string",
+                  "value": "usuario"
+                },
+                {
+                  "key": "password",
+                  "type": "string",
+                  "value": "1234"
+                }
+              ],
+              "type": "basic"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Mi primer post\",\n  \"content\": \"\u00a1Hola mundo! Este es mi primer post usando la API.\"\n}"
+            },
+            "header": [
+              {
+                "disabled": true,
+                "key": "Content-Type",
+                "type": "text",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "url": {
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "path": [
+                "api",
+                "posts",
+                ""
+              ],
+              "port": "8000",
+              "protocol": "http",
+              "raw": "http://127.0.0.1:8000/api/posts/"
             }
           },
           "response": []
@@ -70,23 +116,29 @@
             "auth": {
               "basic": [
                 {
+                  "key": "username",
+                  "type": "string",
+                  "value": "usuario"
+                },
+                {
                   "key": "password",
                   "type": "string",
                   "value": "1234"
-                },
-                {
-                  "key": "username",
-                  "type": "string",
-                  "value": "pepe2"
                 }
               ],
               "type": "basic"
             },
             "body": {
               "mode": "raw",
-              "raw": ""
+              "raw": "{\n  \"name\": \"React\",\n  \"posts\": [15]\n}"
             },
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "type": "text",
+                "value": "application/json"
+              }
+            ],
             "method": "GET",
             "url": {
               "host": [
@@ -115,6 +167,9 @@
         {
           "name": "register",
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "body": {
               "mode": "raw",
               "options": {
@@ -122,7 +177,7 @@
                   "language": "json"
                 }
               },
-              "raw": "{\n  \"username\": \"pepe2\",\n  \"email\": \"pepe@pepe.com\",\n  \"password\": \"1234\"\n}"
+              "raw": "{\n  \"username\": \"usuario\",\n  \"email\": \"usuario@usuario.com\",\n  \"password\": \"1234\"\n}"
             },
             "header": [],
             "method": "POST",
@@ -151,14 +206,14 @@
             "auth": {
               "basic": [
                 {
+                  "key": "username",
+                  "type": "string",
+                  "value": "usuario"
+                },
+                {
                   "key": "password",
                   "type": "string",
                   "value": "1234"
-                },
-                {
-                  "key": "username",
-                  "type": "string",
-                  "value": "pepe2"
                 }
               ],
               "type": "basic"
@@ -170,9 +225,16 @@
                   "language": "json"
                 }
               },
-              "raw": "{\n  \"title\": \"Mi primer post\",\n  \"content\": \"\u00a1Hola mundo! Este es mi primer post usando la API.\",\n  \"tags\": []\n}"
+              "raw": "{\n  \"title\": \"Mi primer post\",\n  \"content\": \"\u00a1Hola mundo! Este es mi primer post usando la API.\"\n}"
             },
-            "header": [],
+            "header": [
+              {
+                "disabled": true,
+                "key": "Content-Type",
+                "type": "text",
+                "value": "application/json"
+              }
+            ],
             "method": "POST",
             "url": {
               "host": [
@@ -199,14 +261,14 @@
             "auth": {
               "basic": [
                 {
+                  "key": "username",
+                  "type": "string",
+                  "value": "usuario"
+                },
+                {
                   "key": "password",
                   "type": "string",
                   "value": "1234"
-                },
-                {
-                  "key": "username",
-                  "type": "string",
-                  "value": "pepe2"
                 }
               ],
               "type": "basic"
@@ -218,9 +280,15 @@
                   "language": "json"
                 }
               },
-              "raw": "{  \n  \"name\": \"django\"\n}"
+              "raw": "{\n  \"name\": \"React\",\n  \"posts\": [15]\n}"
             },
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "type": "text",
+                "value": "application/json"
+              }
+            ],
             "method": "POST",
             "url": {
               "host": [
