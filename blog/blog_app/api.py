@@ -1,7 +1,9 @@
-from rest_framework import generics, permissions, viewsets
+from rest_framework import generics, viewsets
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import AllowAny
 
 from .models import Blog, Post, Tag
+from .permissions import IsBlogOwnerOrAdmin, IsOwnerOrAdmin, is_superuser
 from .serializers import (
     BlogSerializer,
     PostSerializer,
@@ -12,132 +14,128 @@ from .serializers import (
 from django.contrib.auth.models import User
 
 
-# ViewSet para Blog
-class BlogViewSet(
-    viewsets.ModelViewSet
-):  # viewset que permite crear, leer, actualizar y eliminar modelos
-    queryset = Blog.objects.none()  # vacío por defecto
-    serializer_class = BlogSerializer  # Indica el serializador que se usará para convertir los datos a JSON
-    permission_classes = [
-        permissions.IsAuthenticatedOrReadOnly
-    ]  # Indica los permisos que se usarán para acceder a los datos
+# --- Funciones auxiliares ---
+def get_user_blog(user):  # Obtiene o crea el blog del usuario.
+    blog, created = Blog.objects.get_or_create(
+        user=user,
+        defaults={
+            "title": f"Blog de {user.username}",
+            "description": "Blog creado automáticamente.",
+        },
+    )
+    return blog
 
-    # define qué elementos se mostrarán según el usuario logueado
+
+def validate_user_owns_posts(
+    user, posts
+):  # Verifica que el usuario sea dueño de todos los posts indicados.
+    for post in posts:
+        if post.blog.user != user and not is_superuser(user):
+            raise PermissionDenied(
+                f"No puedes asignar tags a posts que no son tuyos ({post.title})."
+            )
+
+
+def get_or_create_tag_by_name(
+    name,
+):  # Normaliza el nombre y obtiene el primer tag existente o crea uno nuevo.
+    name = name.strip().lower()
+    tag = Tag.objects.filter(name=name).first()
+    if not tag:
+        tag = Tag.objects.create(name=name)
+    return tag
+
+
+# --- ViewSets ---
+# ViewSet para Blog
+class BlogViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para Blogs:
+    - GET: el blog del usuario (o todos si es superusuario)
+    - POST: bloqueado, los blogs se crean automáticamente al crear un post
+    """
+
+    serializer_class = BlogSerializer
+    permission_classes = [IsOwnerOrAdmin]
+
     def get_queryset(self):
         user = self.request.user
-
-        if not user.is_authenticated:
-            return Blog.objects.none()
-
         if user.is_superuser:
             return Blog.objects.all()
-
         return Blog.objects.filter(user=user)
 
-    # Asocia automáticamente el blog al usuario autenticado
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    def create(self, request, *args, **kwargs):  # noqa: PLR6301
+        # Bloquea la creación manual de blogs.
+        raise PermissionDenied("Ya existe un blog creado para este usuario.")
 
 
 # ViewSet para Post
 class PostViewSet(viewsets.ModelViewSet):
     """
-    - Los usuarios autenticados pueden crear y gestionar sus propios posts.
-    - Cada post se asocia automáticamente al blog del usuario autenticado.
-    - Los usuarios solo ven sus propios posts (el admin puede verlos todos).
+    ViewSet para Posts:
+    - GET: posts del usuario o todos si es superusuario
+    - POST: crea un post y crea automáticamente el blog si no existía
+    - PUT: permite editar posts del usuario
+    - DELETE: permite eliminar posts del usuario
     """
 
-    queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsBlogOwnerOrAdmin]
 
     def get_queryset(self):
-        """
-        Define qué posts se devuelven según el usuario que hace la petición.
-
-        - Si el usuario es administrador → ve todos los posts.
-        - Si está autenticado → ve solo sus posts.
-        - Si no está autenticado → no ve ninguno.
-        """
         user = self.request.user
+        qs = Post.objects.all().select_related("blog")
+        if is_superuser(user):
+            return qs
+        return qs.filter(blog__user=user)
 
-        # No autenticado → no ve nada
-        if not user.is_authenticated:
-            return Post.objects.none()
-
-        # Superusuario → ve todo
-        if user.is_superuser:
-            return Post.objects.all()
-
-        # Usuario normal → solo sus posts
-        return Post.objects.filter(blog__user=user)
-
-    def perform_create(self, serializer):
-        """
-        Si el usuario no tiene blog, se le crea automáticamente.
-        Cada nuevo post se asocia al blog del usuario.
-        """
-        user = self.request.user
-        blog, created = Blog.objects.get_or_create(
-            user=user,
-            defaults={
-                "title": f"Blog de {user.username}",
-                "description": "Blog creado automáticamente.",
-            },
-        )
+    def perform_create(
+        self, serializer
+    ):  # Asocia el post al blog del usuario, creando el blog si no existía
+        blog = get_user_blog(self.request.user)
         serializer.save(blog=blog)
 
 
 # ViewSet para Tag
 class TagViewSet(viewsets.ModelViewSet):
-    queryset = Tag.objects.all()
     """
-    Vista para gestionar los Tags (etiquetas) asociados a los posts.
-
-    - Los usuarios autenticados pueden crear, ver y editar sus propios tags.
-    - Los superusuarios pueden ver y modificar todos los tags.
-    - Los usuarios no autenticados no pueden ver ni crear nada.
+    ViewSet para Posts:
+    - GET: tags del usuario o todos si es superusuario
+    - POST: crea un tag y asocia posts al tag
+    - PUT: permite editar tags del usuario
+    - DELETE: permite eliminar tags del usuario
     """
 
     serializer_class = TagSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsBlogOwnerOrAdmin]
 
     def get_queryset(self):
-        """
-        Define qué tags puede ver el usuario según su rol.
-        """
         user = self.request.user
-
-        # Si el usuario no está autenticado, no ve ningún tag
-        if not user.is_authenticated:
-            return Tag.objects.none()
-
-        # El superusuario puede ver todos los tags
-        if user.is_superuser:
+        if is_superuser(user):  # Si es superusuario, devuelve todos los tags
             return Tag.objects.all()
-
-        # Usuario normal: solo ve los tags asociados a sus propios posts
-        return Tag.objects.filter(posts__blog__user=user).distinct()
+        return Tag.objects.filter(
+            posts__blog__user=user
+        ).distinct()  # Solo los tags asociados a posts cuyo blog pertenece al usuario
 
     def perform_create(self, serializer):
-        """
-        Al crear un tag, valida que todos los posts seleccionados
-        pertenezcan al usuario autenticado.
-        """
         user = self.request.user
-        posts = serializer.validated_data.get("posts", [])
+        validated_data = (
+            serializer.validated_data
+        )  # Obtiene los datos validados del tag
+        posts = validated_data.get("posts", [])  # Obtiene los posts del tag
+        name = validated_data.get("name")  # Obtiene el nombre del tag
 
-        # Si alguno de los posts no pertenece al usuario, lanza error
-        for post in posts:
-            if post.blog.user != user and not user.is_superuser:
-                raise PermissionError(
-                    "No puedes asignar tags a posts que no son tuyos."
-                )
+        validate_user_owns_posts(user, posts)  # Valida propiedad de posts
 
-        serializer.save()
+        tag = get_or_create_tag_by_name(name)  # Obtiene o crea tag
 
-    def get_serializer_context(self):
-        """Pasa el request al serializer para filtrar posts dinámicamente"""
+        tag.posts.add(*posts)  # Asocia posts (evita duplicados automáticamente)
+
+        serializer.instance = tag  # Asigna la instancia creada al serializer
+
+    def get_serializer_context(
+        self,
+    ):  # Añade el objeto 'request' al contexto del serializer para permitir validaciones basadas en el usuario autenticado
         context = super().get_serializer_context()
         context["request"] = self.request
         return context
