@@ -53,7 +53,7 @@ def test_authenticated_user_only_sees_their_posts():  # El usuario autenticado s
 
 
 @pytest.mark.django_db
-def test_create_tag_authenticated_user():
+def test_create_tag_authenticated_user():  # Un usuario autenticado puede crear un tag y asociarlo a sus propios posts. No puede asociarlo a posts de otros usuarios.
     user1 = UserFactory()
     user2 = UserFactory()
 
