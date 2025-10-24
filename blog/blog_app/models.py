@@ -29,8 +29,8 @@ class Post(models.Model):
 
 # 2.3 Tag y relación M:N con Post
 class Tag(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    posts = models.ManyToManyField(Post, related_name="tags", blank=True)
+    name = models.CharField(max_length=50)
+    posts = models.ManyToManyField("Post", related_name="tags", blank=True)
 
     def __str__(self):
         return self.name
