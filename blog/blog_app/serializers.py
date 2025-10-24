@@ -5,6 +5,28 @@ from .models import Blog, Post, Tag
 from django.contrib.auth.models import User
 
 
+# --- Funciones auxiliares ---
+def validate_user_owns_posts(
+    user, posts
+):  # Valida que todos los posts pertenezcan al usuario (o superusuario)
+
+    for post in posts:
+        if post.blog.user != user and not user.is_superuser:
+            raise serializers.ValidationError(
+                f"El post '{post.title}' no pertenece al usuario autenticado."
+            )
+
+
+def create_user(validated_data):  # Crea un usuario y cifra la contraseña.
+
+    return User.objects.create_user(
+        username=validated_data["username"],
+        email=validated_data.get("email"),
+        password=validated_data["password"],
+    )
+
+
+# --- Serializers ---
 # Serializador para Tag
 class TagSerializer(serializers.ModelSerializer):
     posts = serializers.PrimaryKeyRelatedField(
@@ -17,18 +39,13 @@ class TagSerializer(serializers.ModelSerializer):
 
     def validate_posts(
         self, posts
-    ):  # Validar que los posts pertenecen al usuario autenticado
+    ):  # Validar que los posts pertenecen al usuario autenticado.
 
         user = self.context["request"].user
-
         if not user.is_authenticated:
             raise serializers.ValidationError("No estás autenticado.")
 
-        for post in posts:
-            if post.blog.user != user and not user.is_superuser:
-                raise serializers.ValidationError(
-                    f"El post '{post.title}' no pertenece al usuario autenticado."
-                )
+        validate_user_owns_posts(user, posts)
         return posts
 
 
@@ -62,9 +79,4 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ["username", "email", "password"]
 
     def create(self, validated_data):  # noqa: PLR6301
-        user = User.objects.create_user(  # Para guardar la contraseña cifrada
-            username=validated_data["username"],
-            email=validated_data.get("email"),
-            password=validated_data["password"],
-        )
-        return user
+        return create_user(validated_data)
