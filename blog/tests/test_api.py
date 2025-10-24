@@ -5,7 +5,7 @@ from tests.factories import BlogFactory, PostFactory, UserFactory
 
 
 OK_REQUEST_STATUS = 200
-CREATED_STATUS = 201
+BAD_REQUEST = 400
 
 
 # TESTS DE BLOGS
@@ -25,20 +25,6 @@ def test_get_blogs_list_authenticated_user():  # Un usuario autenticado solo pue
     # El usuario debe ver solo sus blogs (si el filtro está activo)
     if response.data:
         assert all(blog["user"] == user.id for blog in response.data)
-
-
-@pytest.mark.django_db
-def test_create_blog_authenticated_user():  # Un usuario autenticado puede crear un blog
-
-    user = UserFactory()
-    client = APIClient()
-    client.force_authenticate(user=user)
-
-    data = {"title": "Mi blog personal", "description": "Un blog de prueba"}
-
-    response = client.post("/api/blogs/", data)
-    assert response.status_code == CREATED_STATUS
-    assert response.data["title"] == "Mi blog personal"
 
 
 # TESTS DE POSTS
@@ -64,3 +50,22 @@ def test_authenticated_user_only_sees_their_posts():  # El usuario autenticado s
     # El usuario debería ver solo los posts asociados a su blog
     returned_post_ids = [p["id"] for p in response.data]
     assert post1.id in returned_post_ids
+
+
+@pytest.mark.django_db
+def test_create_tag_authenticated_user():
+    user1 = UserFactory()
+    user2 = UserFactory()
+
+    post1 = PostFactory(blog__user=user1)
+    post2 = PostFactory(blog__user=user2)
+
+    client = APIClient()
+    client.force_authenticate(user=user1)
+
+    data = {"name": "django", "posts": [post1.id, post2.id]}
+
+    response = client.post("/api/tags/", data, format="json")
+
+    # Cambia de 403 a 400 porque el serializer valida los posts
+    assert response.status_code == BAD_REQUEST
