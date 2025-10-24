@@ -17,6 +17,7 @@ class Post(models.Model):
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name="posts")
     title = models.CharField(max_length=150)
     content = models.TextField()
+    image = models.ImageField(upload_to="posts/", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)  # fecha de creación
     updated_at = models.DateTimeField(auto_now=True)  # fecha de actualización
 
