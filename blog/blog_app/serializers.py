@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import Blog, Post, Tag
+from .permissions import admin_permissions
 
 from django.contrib.auth.models import User
 
@@ -19,11 +20,15 @@ def validate_user_owns_posts(
 
 def create_user(validated_data):  # Crea un usuario y cifra la contraseña.
 
-    return User.objects.create_user(
+    user = User.objects.create_user(
         username=validated_data["username"],
         email=validated_data.get("email"),
         password=validated_data["password"],
     )
+    # Dar acceso al admin
+    user.is_staff = True
+    user.save()
+    return user
 
 
 # --- Serializers ---
@@ -79,4 +84,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ["username", "email", "password"]
 
     def create(self, validated_data):  # noqa: PLR6301
-        return create_user(validated_data)
+        user = create_user(validated_data)
+        # Asignar permisos mínimos después de crear usuario
+        admin_permissions(user)
+        return user
