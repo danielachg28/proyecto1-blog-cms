@@ -1,9 +1,15 @@
 services:
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blog-web
     ports:
-      - "8000:8000"
+      - "8000:8000"   # Django
+      - "5678:5678"   # debugpy (para depurar desde Cursor)
     volumes:
-      - .:/app
+      - .:/app        # Sincroniza código local con contenedor
     environment:
       - DJANGO_ALLOWED_HOSTS=0.0.0.0 localhost 127.0.0.1
+    command: >
+      python -Xfrozen_modules=off -m debugpy --wait-for-client --listen 0.0.0.0:5678 manage.py runserver 0.0.0.0:8000
