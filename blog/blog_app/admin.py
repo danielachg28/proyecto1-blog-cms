@@ -1,43 +1,33 @@
-# Librerías para importar/exportar datos
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
-
-# TinyMCE: editor visual de texto
 from tinymce.widgets import TinyMCE
 
-# Importa los modelos (las clases que representan las tablas del blog)
+from .api import get_user_blog
 from .models import Blog, Post, Tag
 
-# Importa el panel de administración de Django
 from django.contrib import admin
-
-# Importa la base de campos de Django (para personalizar campos del formulario)
+from django.contrib.auth import get_user_model
 from django.db import models
 
 
-# ------------------------------------------------------
-# 3.3 Configurar django-import-export para los Posts
-# ------------------------------------------------------
-# Este recurso define qué campos se pueden exportar o importar
+User = get_user_model()
+
+
+# Define qué campos se pueden exportar o importar
 class PostResource(resources.ModelResource):
     class Meta:
         model = Post
         fields = ("id", "title", "content", "created_at", "updated_at", "blog")
 
 
-# ------------------------------------------------------
-# 3.2 y 3.4 Configurar el panel de administración de Post
-# ------------------------------------------------------
+# Admin posts
 @admin.register(Post)
 class PostAdmin(ImportExportModelAdmin):
     # Vincula el recurso de import/export
     resource_class = PostResource
 
-    # Qué columnas mostrar en la lista del admin
+    # Qué columnas mostrar en la lista del admin de posts
     list_display = ("title", "blog", "created_at", "updated_at")
-
-    # Qué filtros laterales mostrar
-    list_filter = ("created_at", "tags")
 
     # Campos por los que se puede buscar
     search_fields = ("title", "content")
@@ -47,46 +37,88 @@ class PostAdmin(ImportExportModelAdmin):
         models.TextField: {"widget": TinyMCE(attrs={"cols": 80, "rows": 20})},
     }
 
-    # ------------------------------------------------------
-    # 3.5 Permisos: mostrar solo los posts del usuario actual
-    # ------------------------------------------------------
+    # Filtra los posts del usuario (o todos si es superusuario)
     def get_queryset(self, request):
-        # Obtiene todos los posts
         queryset = super().get_queryset(request)
-        # Si es superusuario, ve todos los posts
         if request.user.is_superuser:
-            return queryset
-        # Si no, solo ve los de su propio blog
-        return queryset.filter(blog__user=request.user)
+            return queryset  # Ve todos los posts
+        return queryset.filter(blog__user=request.user)  # Ve los posts del usuario
 
-    # ------------------------------------------------------
-    # 3.5 Asignar el blog automáticamente al crear un post
-    # ------------------------------------------------------
+    # Crea automáticamente el blog del usuario antes de mostrar el formulario
+    def get_form(self, request, obj=None, **kwargs):
+        if (
+            not request.user.is_superuser
+        ):  # Si no es superusuario, crea el blog del usuario
+            get_user_blog(request.user)  # Crea el blog del usuario
+        return super().get_form(request, obj, **kwargs)
+
+    # Filtra el desplegable de blog
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if (
+            db_field.name == "blog" and not request.user.is_superuser
+        ):  # Si no es superusuario, filtra los blogs del usuario
+            kwargs["queryset"] = Blog.objects.filter(
+                user=request.user
+            )  # Filtra los blogs del usuario
+        return super().formfield_for_foreignkey(
+            db_field, request, **kwargs
+        )  # Llama al método original para que se ejecute el resto de la lógica
+
+    # Asigna automáticamente el blog al crear el post
     def save_model(self, request, obj, form, change):  # noqa: PLR6301
-        # Si el post es nuevo (no tiene id todavía)
-        if not obj.pk:
-            # Asigna el blog del usuario conectado
-            obj.blog = request.user.blog
-        obj.save()
+        if not obj.pk:  # Nuevo post
+            obj.blog = get_user_blog(request.user)  # Asigna el blog del usuario
+        obj.save()  # Guarda el post
 
 
-# ------------------------------------------------------
-# Configuración sencilla para los otros modelos
-# ------------------------------------------------------
-
-
+# Admin blogs
 @admin.register(Blog)
 class BlogAdmin(admin.ModelAdmin):
     list_display = ("title", "user")  # Mostrar título y dueño del blog
 
+    # Filtra los blogs del usuario (o todos si es superusuario)
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        if request.user.is_superuser:
+            return queryset
+        # Solo los blogs del usuario
+        return queryset.filter(user=request.user)
 
+    # Filtra el desplegable de usuarios al crear/editar un blog
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if (
+            db_field.name == "user" and not request.user.is_superuser
+        ):  # Staff solo puede ver su propio blog
+            kwargs["queryset"] = User.objects.filter(
+                id=request.user.id
+            )  # Filtra los usuarios del blog
+        return super().formfield_for_foreignkey(
+            db_field, request, **kwargs
+        )  # Llama al método original para que se ejecute el resto de la lógica
+
+
+# Admin tags
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
 
+    # Filtra los tags del usuario (o todos si es superusuario)
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        if request.user.is_superuser:
+            return queryset
+        # Solo tags asociados a posts del usuario
+        return queryset.filter(posts__blog__user=request.user).distinct()
 
-# ------------------------------------------------------
-# Registrar los modelos en el panel de administración
-# ------------------------------------------------------
-# Esto es lo que hace que aparezcan en el panel de Django
+    # Filtra posts visibles en el formulario (ManyToMany)
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if (
+            db_field.name == "posts" and not request.user.is_superuser
+        ):  # Staff solo puede ver los posts del usuario
+            kwargs["queryset"] = Post.objects.filter(
+                blog__user=request.user
+            )  # Filtra los posts del usuario
+        return super().formfield_for_manytomany(
+            db_field, request, **kwargs
+        )  # Llama al método original para que se ejecute el resto de la lógica
