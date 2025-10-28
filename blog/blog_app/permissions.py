@@ -1,5 +1,10 @@
 from rest_framework import permissions
 
+from .models import Blog, Post, Tag
+
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+
 
 # --- Helpers ---
 def is_authenticated(user):
@@ -82,3 +87,43 @@ class IsAuthenticatedOrReadOnlyOwner(permissions.BasePermission):
         if is_superuser(user):
             return True
         return is_owner(user, obj)
+
+
+def admin_permissions(user):
+    """
+    Asigna permisos en el admin  para un usuario staff
+    """
+    # Obtiene el tipo de contenido (ContentType) asociado al modelo Blog
+    content_type_blog = ContentType.objects.get_for_model(Blog)
+
+    # Busca los permisos 'ver' y 'editar' del modelo Blog
+    permisos_blog = Permission.objects.filter(
+        content_type=content_type_blog, codename__in=["view_blog", "change_blog"]
+    )
+
+    # Asigna esos permisos al usuario
+    user.user_permissions.add(*permisos_blog)
+
+    # Obtiene el tipo de contenido asociado al modelo Post
+    content_type_post = ContentType.objects.get_for_model(Post)
+
+    # Busca los permisos 'ver', 'añadir', 'editar' y 'eliminar' del modelo Post
+    permisos_post = Permission.objects.filter(
+        content_type=content_type_post,
+        codename__in=["view_post", "add_post", "change_post", "delete_post"],
+    )
+
+    # Asigna esos permisos al usuario
+    user.user_permissions.add(*permisos_post)
+
+    # Obtiene el tipo de contenido asociado al modelo Tag
+    content_type_tag = ContentType.objects.get_for_model(Tag)
+
+    # Busca los permisos 'ver', 'añadir', 'editar' y 'eliminar' del modelo Tag
+    permisos_tag = Permission.objects.filter(
+        content_type=content_type_tag,
+        codename__in=["view_tag", "add_tag", "change_tag", "delete_tag"],
+    )
+
+    # Asigna esos permisos al usuario
+    user.user_permissions.add(*permisos_tag)
