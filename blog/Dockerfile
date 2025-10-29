@@ -17,4 +17,4 @@ RUN mkdir -p /tmp && chmod 1777 /tmp
 
 EXPOSE 8000
 
-CMD ["gunicorn", "blog.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["sh", "-c", "mkdir -p /tmp && chmod 1777 /tmp && gunicorn blog.wsgi:application --bind 0.0.0.0:8000"]
