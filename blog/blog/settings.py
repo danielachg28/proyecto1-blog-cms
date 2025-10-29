@@ -169,11 +169,3 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_REDIRECT_URL = "/"  # Después del login, django redirige a home
 LOGOUT_REDIRECT_URL = "/"  # Después del logout, django redirige a home
-
-# --- SEGURIDAD ADICIONAL SOLO EN PRODUCCIÓN ---
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
