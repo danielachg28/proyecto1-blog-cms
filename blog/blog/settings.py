@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
+import dj_database_url
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,15 +24,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = (
-    "django-insecure-o-#r1^e@x1$45f1*=&*)1*0-hmi9nhpya6orv97q(e49686j!*"  # noqa: E501
+
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "insecure-dev-key")
+
+# Activa DEBUG solo si DJANGO_DEBUG=True
+DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
+
+# Define los hosts permitidos (Railway o local)
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,0.0.0.0").split(
+    ","
 )
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-# Permite hosts desde variable de entorno, por defecto localhost
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost").split(" ")
 
 
 # Application definition
@@ -70,6 +73,8 @@ REST_FRAMEWORK = {
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # Whitenoise para servir archivos estáticos en producción
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -103,10 +108,11 @@ WSGI_APPLICATION = "blog.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+        ssl_require=not DEBUG,
+    )
 }
 
 
@@ -157,3 +163,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_REDIRECT_URL = "/"  # Después del login, django redirige a home
 LOGOUT_REDIRECT_URL = "/"  # Después del logout, django redirige a home
+
+# --- SEGURIDAD ADICIONAL SOLO EN PRODUCCIÓN ---
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True

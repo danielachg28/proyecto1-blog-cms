@@ -4,6 +4,7 @@ cfgv==3.4.0
 click==8.3.0
 colorama==0.4.6
 cssbeautifier==1.15.4
+debugpy==1.8.17
 diff-match-patch==20241021
 distlib==0.4.0
 Django==5.2.7
@@ -52,4 +53,3 @@ typing_extensions==4.15.0
 tzdata==2025.2
 uritemplate==4.2.0
 virtualenv==20.35.3
-debugpy
