@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
-import dj_database_url
+import dj_database_url  # pyright: ignore[reportMissingImports]
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,6 +32,11 @@ DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
 
 # Define los hosts permitidos (Railway o local)
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1 [::1]").split()
+
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://proyecto1-blog-cms.sherpa.software",
+]
 
 
 # Application definition
