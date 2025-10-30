@@ -35,7 +35,7 @@ ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1 [::1]").s
 
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://proyecto1-blog-cms.sherpa.software",
+    "https://proyecto1-blog-cms-dev-v1-version.sherpa.software",
 ]
 
 
