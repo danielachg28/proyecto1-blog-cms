@@ -1,37 +1,30 @@
 # Dockerfile (producción)
 FROM python:3.12-slim
 
-# --- Configuración básica de Python ---
+# Configuración base de Python
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# --- Define un directorio temporal seguro ---
-ENV TMPDIR=/app/tmp
+# Usamos /home/tmp como carpeta temporal (es writable en Sherpa)
+ENV TMPDIR=/home/tmp
 
-# --- Establece el directorio de trabajo ---
 WORKDIR /app
 
-# --- Copia primero requirements para aprovechar cache ---
+# Instala dependencias
 COPY requirements.txt ./
-
-# --- Instala dependencias ---
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# --- Copia el resto del proyecto ---
+# Copia el proyecto
 COPY . .
 
-# --- Crea y da permisos al directorio temporal ---
-# Muy importante: Gunicorn necesita poder escribir en /app/tmp
-RUN mkdir -p /app/tmp && chmod 777 /app/tmp
+# Crea carpeta temporal y le da permisos
+RUN mkdir -p /home/tmp && chmod 777 /home/tmp
 
-# --- Recoge archivos estáticos solo si aplica ---
-# No se debe ejecutar durante el build si usas SQLite o debug, porque no hay settings configurado aún
-# Lo marcamos como opcional para no romper la imagen
+# Evita que falle si no hay estáticos
 RUN python manage.py collectstatic --noinput --ignore=.gitignore || true
 
-# --- Expone el puerto de Gunicorn ---
 EXPOSE 8000
 
-# --- Comando de inicio ---
+# Ejecuta gunicorn
 CMD ["gunicorn", "blog.wsgi:application", "--bind", "0.0.0.0:8000"]
