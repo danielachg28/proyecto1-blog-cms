@@ -31,7 +31,13 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "insecure-dev-key")
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
 
 # Define los hosts permitidos (Railway o local)
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1 [::1]").split()
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv(
+        "ALLOWED_HOSTS",
+        "localhost,127.0.0.1,.sherpa.software,proyecto1-blog-cms-dev-v1-version.sherpa.software",
+    ).split(",")
+]
 
 
 CSRF_TRUSTED_ORIGINS = [
