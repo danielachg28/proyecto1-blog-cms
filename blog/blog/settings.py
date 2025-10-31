@@ -35,13 +35,13 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv(
         "ALLOWED_HOSTS",
-        "localhost,127.0.0.1,.sherpa.software,proyecto1-blog-cms-dev-v1-version.sherpa.software",
+        "localhost,127.0.0.1,.railway.app,proyecto1-blog-cms-dev-v1-version.railway.app",
     ).split(",")
 ]
 
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://proyecto1-blog-cms-dev-v1-version.sherpa.software",
+    "https://*.railway.app",  # *: Para incluir todos los subdominios de railway
 ]
 
 
