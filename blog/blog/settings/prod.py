@@ -10,9 +10,15 @@ DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
 # ALLOWED_HOSTS
 ALLOWED_HOSTS_ENV = os.getenv("DJANGO_ALLOWED_HOSTS")
 if ALLOWED_HOSTS_ENV:
-    ALLOWED_HOSTS = [h.strip() for h in ALLOWED_HOSTS_ENV.split(",")]
+    ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_ENV.split(",")]
 else:
-    raise Exception("ALLOWED_HOSTS no definido en producción!")
+    # Valor por defecto solo si quieres incluir subdominios de Railway
+    ALLOWED_HOSTS = [
+        "localhost",
+        "127.0.0.1",
+        ".railway.app",
+        "proyecto1-blog-cms-dev-v1-version.railway.app",
+    ]
 
 # CSRF_TRUSTED_ORIGINS
 CSRF_TRUSTED_ORIGINS = [
