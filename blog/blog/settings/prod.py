@@ -3,6 +3,7 @@ import os
 import dj_database_url  # pyright: ignore[reportMissingImports]
 
 from .base import *  # IMPORTANTE: trae ROOT_URLCONF, INSTALLED_APPS, MIDDLEWARE, etc.  # noqa: F403, F405
+from .base import BASE_DIR  # noqa: F401
 
 
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
@@ -32,10 +33,16 @@ if not SECRET_KEY:
 
 # DATABASES
 DATABASE_URL = os.getenv("DATABASE_URL")
-if DATABASE_URL is None:
-    raise Exception("DATABASE_URL no definido en producción!")
-
-DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
+if DATABASE_URL:
+    DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
+else:
+    # fallback a SQLite si no hay DATABASE_URL
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # Opcional: seguridad extra en producción
 SECURE_BROWSER_XSS_FILTER = True
