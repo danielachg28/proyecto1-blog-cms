@@ -4,6 +4,8 @@ FROM python:3.12-slim
 # Evitar archivos pyc y habilitar logs en tiempo real
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV DJANGO_SETTINGS_MODULE=blog.settings.prod
+
 
 # Gunicorn usará /dev/shm (espacio temporal en memoria) para sus archivos temporales
 ENV TMPDIR=/dev/shm
