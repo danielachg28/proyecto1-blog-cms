@@ -12,6 +12,10 @@ pip install --no-cache-dir -r requirements.txt
 # Aplicar migraciones automáticamente
 python manage.py migrate --noinput
 
+# 🔧 NUEVO: recopilar archivos estáticos antes de arrancar
+echo "Ejecutando collectstatic..."
+python manage.py collectstatic --noinput
+
 # Arrancar Gunicorn usando el puerto asignado por Railway
-# Si $PORT no está definido, usar 8000 como fallback
-gunicorn blog.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3
+echo "Iniciando Gunicorn..."
+gunicorn blog.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --worker-tmp-dir /dev/shm
