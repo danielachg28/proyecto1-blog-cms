@@ -24,5 +24,5 @@ EXPOSE 8000
 
 # Ejecutar Gunicorn especificando su tmpdir también
 CMD python manage.py collectstatic --noinput && \
-    gunicorn blog.wsgi:application --bind 0.0.0.0:8000 --worker-tmp-dir /dev/shm
+    gunicorn blog.wsgi:application --bind 0.0.0.0:8080 --worker-tmp-dir /dev/shm
 # CMD ["gunicorn", "blog.wsgi:application", "--bind", "0.0.0.0:8080", "--worker-tmp-dir", "/dev/shm"]
