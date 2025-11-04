@@ -14,6 +14,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 COPY . .
 
+# Dar permisos de ejecución al script
+RUN chmod +x start.sh
+
 EXPOSE 8000
 
 # Usa el script de arranque
