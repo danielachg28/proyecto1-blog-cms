@@ -20,9 +20,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copiar el proyecto
 COPY . .
 
-# Collectstatic opcional, no rompe si no hay archivos
-RUN python manage.py collectstatic --noinput --ignore=.gitignore || true
-
 EXPOSE 8000
 
 # Ejecutar Gunicorn especificando su tmpdir también
