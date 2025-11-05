@@ -1,0 +1,316 @@
+{
+  "info": {
+    "_collection_link": "https://danielacz1-1694528.postman.co/workspace/danielacz1's-Workspace~fa6afb4c-4c85-4387-8e46-77a07cbde9e1/collection/49413049-25e33b88-25d8-45f1-afa1-f56a2424e86a?action=share&source=collection_link&creator=49413049",
+    "_exporter_id": "49413049",
+    "_postman_id": "25e33b88-25d8-45f1-afa1-f56a2424e86a",
+    "name": "Pruebas API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "item": [
+        {
+          "name": "login",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "basic": [
+                {
+                  "key": "username",
+                  "type": "string",
+                  "value": "usuario"
+                },
+                {
+                  "key": "password",
+                  "type": "string",
+                  "value": "1234"
+                }
+              ],
+              "type": "basic"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"usuario\",\n  \"email\": \"usuario@usuario.com\",\n  \"password\": \"1234\"\n}"
+            },
+            "header": [],
+            "method": "GET",
+            "url": {
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "path": [
+                "api",
+                ""
+              ],
+              "port": "8000",
+              "protocol": "http",
+              "raw": "http://127.0.0.1:8000/api/"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get posts",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "basic": [
+                {
+                  "key": "username",
+                  "type": "string",
+                  "value": "usuario"
+                },
+                {
+                  "key": "password",
+                  "type": "string",
+                  "value": "1234"
+                }
+              ],
+              "type": "basic"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Mi primer post\",\n  \"content\": \"\u00a1Hola mundo! Este es mi primer post usando la API.\"\n}"
+            },
+            "header": [
+              {
+                "disabled": true,
+                "key": "Content-Type",
+                "type": "text",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "url": {
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "path": [
+                "api",
+                "posts",
+                ""
+              ],
+              "port": "8000",
+              "protocol": "http",
+              "raw": "http://127.0.0.1:8000/api/posts/"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get tags",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "basic": [
+                {
+                  "key": "username",
+                  "type": "string",
+                  "value": "usuario"
+                },
+                {
+                  "key": "password",
+                  "type": "string",
+                  "value": "1234"
+                }
+              ],
+              "type": "basic"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"React\",\n  \"posts\": [15]\n}"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "type": "text",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "url": {
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "path": [
+                "api",
+                "tags",
+                ""
+              ],
+              "port": "8000",
+              "protocol": "http",
+              "raw": "http://127.0.0.1:8000/api/tags/"
+            }
+          },
+          "response": []
+        }
+      ],
+      "name": "GET"
+    },
+    {
+      "item": [
+        {
+          "name": "register",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "raw": "{\n  \"username\": \"usuario\",\n  \"email\": \"usuario@usuario.com\",\n  \"password\": \"1234\"\n}"
+            },
+            "header": [],
+            "method": "POST",
+            "url": {
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "path": [
+                "api",
+                "register",
+                ""
+              ],
+              "port": "8000",
+              "protocol": "http",
+              "raw": "http://127.0.0.1:8000/api/register/"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "crear post",
+          "request": {
+            "auth": {
+              "basic": [
+                {
+                  "key": "username",
+                  "type": "string",
+                  "value": "usuario"
+                },
+                {
+                  "key": "password",
+                  "type": "string",
+                  "value": "1234"
+                }
+              ],
+              "type": "basic"
+            },
+            "body": {
+              "mode": "raw",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "raw": "{\n  \"title\": \"Mi primer post\",\n  \"content\": \"\u00a1Hola mundo! Este es mi primer post usando la API.\"\n}"
+            },
+            "header": [
+              {
+                "disabled": true,
+                "key": "Content-Type",
+                "type": "text",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": {
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "path": [
+                "api",
+                "posts",
+                ""
+              ],
+              "port": "8000",
+              "protocol": "http",
+              "raw": "http://127.0.0.1:8000/api/posts/"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "crear tag",
+          "request": {
+            "auth": {
+              "basic": [
+                {
+                  "key": "username",
+                  "type": "string",
+                  "value": "usuario"
+                },
+                {
+                  "key": "password",
+                  "type": "string",
+                  "value": "1234"
+                }
+              ],
+              "type": "basic"
+            },
+            "body": {
+              "mode": "raw",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "raw": "{\n  \"name\": \"React\",\n  \"posts\": [15]\n}"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "type": "text",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "url": {
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "path": [
+                "api",
+                "tags",
+                ""
+              ],
+              "port": "8000",
+              "protocol": "http",
+              "raw": "http://127.0.0.1:8000/api/tags/"
+            }
+          },
+          "response": []
+        }
+      ],
+      "name": "POST"
+    }
+  ]
+}

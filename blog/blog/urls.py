@@ -15,9 +15,52 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions, routers
+
+from blog_app.api import BlogViewSet, PostViewSet, RegisterView, TagViewSet
+
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+
+
+# Crear router automáticamente
+router = routers.DefaultRouter()
+router.register(
+    r"blogs", BlogViewSet, basename="blog"
+)  # r" es para escapar el carácter ". basename si viewset ya no devuelve Blog.objects.all() por defecto
+router.register(r"posts", PostViewSet, basename="post")
+router.register(r"tags", TagViewSet, basename="tag")
+
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("admin/", admin.site.urls),  # Panel de administración
+    path("tinymce/", include("tinymce.urls")),  # Rutas de TinyMCE
+    path("api/", include(router.urls)),  # API REST
+    path("api-auth/", include("rest_framework.urls")),  # Login para DRF
+    path("api/register/", RegisterView.as_view(), name="register"),  # registro
+    path("", include("blog_app.urls")),  # Rutas normales del blog
+]
+# Generar la documentación de la API con Swagger
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Blog CMS API",
+        default_version="v1",
+        description="Documentación de la API del Blog CMS",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="contacto@blogcms.com"),
+        license=openapi.License(name="MIT License"),
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny],
+)
+
+urlpatterns += [
+    path(
+        "swagger/",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
+    ),
+    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
 ]
