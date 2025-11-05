@@ -17,6 +17,7 @@ Including another URLconf
 
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
+from graphene_django.views import GraphQLView
 from rest_framework import permissions, routers
 
 from blog_app.api import BlogViewSet, PostViewSet, RegisterView, TagViewSet
@@ -41,6 +42,8 @@ urlpatterns = [
     path("api-auth/", include("rest_framework.urls")),  # Login para DRF
     path("api/register/", RegisterView.as_view(), name="register"),  # registro
     path("", include("blog_app.urls")),  # Rutas normales del blog
+    # GraphQL (NO usa router)
+    path("graphql/", GraphQLView.as_view(graphiql=True)),
 ]
 # Generar la documentación de la API con Swagger
 schema_view = get_schema_view(

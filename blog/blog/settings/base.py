@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "import_export",  # Habilita exportación a CSV/XLSX desde admin
     "tinymce",  # Para campos HTML en admin.
     "rest_framework",
+    "graphene_django",  # API GraphQL
     "drf_yasg",  # Para generar la documentación de la API
     # APP
     "blog_app",
@@ -74,6 +75,8 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
     ],
 }
+
+GRAPHENE = {"SCHEMA": "blog_app.schema.schema"}  # ruta al schema principal
 
 ROOT_URLCONF = "blog.urls"
 
