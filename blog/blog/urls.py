@@ -17,10 +17,11 @@ Including another URLconf
 
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
-from graphene_django.views import GraphQLView
+from graphene_django.views import GraphQLView  # pyright: ignore[reportMissingImports]
 from rest_framework import permissions, routers
 
 from blog_app.api import BlogViewSet, PostViewSet, RegisterView, TagViewSet
+from blog_app.schema import schema
 
 from django.contrib import admin
 from django.urls import include, path
@@ -43,7 +44,7 @@ urlpatterns = [
     path("api/register/", RegisterView.as_view(), name="register"),  # registro
     path("", include("blog_app.urls")),  # Rutas normales del blog
     # GraphQL (NO usa router)
-    path("graphql/", GraphQLView.as_view(graphiql=True)),
+    path("graphql/", GraphQLView.as_view(graphiql=True, schema=schema)),
 ]
 # Generar la documentación de la API con Swagger
 schema_view = get_schema_view(
