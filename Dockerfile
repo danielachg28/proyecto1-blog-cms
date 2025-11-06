@@ -17,14 +17,15 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
     rm -rf /root/.cache /tmp/*
 
-# Copiar el resto del proyecto
+# Copiar el proyecto y el script de arranque
 COPY blog /app/blog
+COPY start.sh /app/start.sh
 
 # Dar permisos de ejecución al script de arranque
-RUN chmod +x start.sh
+RUN chmod +x /app/start.sh
 
 # Exponer puerto 8000
 EXPOSE 8000
 
 # Usa el script de arranque
-CMD ["bash", "start.sh"]
+CMD ["bash", "/app/start.sh"]
