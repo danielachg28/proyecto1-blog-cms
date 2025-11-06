@@ -6,11 +6,11 @@ set -e  # detiene el script si algún comando falla
 echo "Railway PORT: $PORT"
 
 # Aplicar migraciones automáticamente
-python blog/manage.py migrate --noinput
+python manage.py migrate --noinput
 
 # 🔧 NUEVO: recopilar archivos estáticos antes de arrancar
 echo "Ejecutando collectstatic..."
-python blog/manage.py collectstatic --noinput
+python manage.py collectstatic --noinput
 
 # Arrancar Gunicorn usando el puerto asignado por Railway
 echo "Iniciando Gunicorn..."
