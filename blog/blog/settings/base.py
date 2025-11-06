@@ -10,6 +10,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-secret")
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
+
+ALLOWED_HOSTS = []
+CSRF_TRUSTED_ORIGINS = []
+
 """
     ALLOWED_HOSTS = [
         host.strip()
@@ -137,8 +141,8 @@ MEDIA_ROOT = (
     BASE_DIR / "media"
 )  # Para imágenes de posts (Pillow gestiona las imágenes).
 
-os.makedirs(STATIC_ROOT, exist_ok=True)
-os.makedirs(MEDIA_ROOT, exist_ok=True)
+# os.makedirs(STATIC_ROOT, exist_ok=True)
+# os.makedirs(MEDIA_ROOT, exist_ok=True)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

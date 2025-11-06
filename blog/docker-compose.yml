@@ -11,8 +11,5 @@ services:
       - .:/app       # Sincroniza código local con contenedor
     env_file:
       - .env
-    environment:
-      - DJANGO_SETTINGS_MODULE=blog.settings.dev
-      - PYTHONPATH=/app         # para los imports de Django
-    working_dir: /app/blog
+    # working_dir: /app/blog
     command: python -Xfrozen_modules=off -m debugpy --listen 0.0.0.0:5678 manage.py runserver 0.0.0.0:8000  # para depurar desde Cursor

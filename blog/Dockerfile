@@ -6,18 +6,21 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
 ENV TMPDIR=/dev/shm
+ENV DJANGO_SETTINGS_MODULE=blog.settings.prod
+
 
 # Directorio de trabajo
 WORKDIR /app
 
-# Dependencias de python
-COPY requirements.txt ./
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    rm -rf /root/.cache /tmp/*
+# Copiar carpeta de requirements
+COPY requirements/ /app/requirements/
 
-# Copiar el proyecto y el script de arranque
-COPY blog /app/blog
+# Instalar dependencias de producción
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements/requirements-prod.txt
+
+# Copiar la app y script de arranque
+COPY blog/ /app/blog/
 COPY start.sh /app/start.sh
 
 # Dar permisos de ejecución al script de arranque

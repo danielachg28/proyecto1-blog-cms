@@ -185,31 +185,55 @@ Ambas interfaces permiten probar los endpoints directamente desde el navegador.
 ## 🧾 Estructura del Proyecto
 
 ```
-blog/
-├── blog/                  # Configuración del proyecto
-│   ├── __init__.py
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-│   └── asgi.py
-├── blog_app/              # Aplicación principal
-│   ├── __init__.py
-│   ├── apps.py
-│   ├── models.py
-│   ├── serializers.py
-│   ├── api.py
-│   ├── admin.py
-│   ├── urls.py
-│   └── views.py
-│   └── permissions.py
-├── blog_app/            # tests unitarios
-│   ├── __init__.py
-│   └── factories.py
-│   └── test_api.py
-│   └── test_models.py
-├── manage.py
-├── pytest.py
-└── requirements.txt
+ proyecto1-blog-cms/
+│
+├── blog/                         # Carpeta raíz del proyecto Django
+│   │
+│   ├── blog/                     # Proyecto principal de Django (configuración global)
+│   │   ├── __init__.py
+│   │   ├── settings/             # Configuraciones por entorno
+│   │   │   ├── base.py           # Configuración base (común a todos)
+│   │   │   ├── prod.py           # Configuración para producción
+│   │   │   └── dev.py            # Configuración para desarrollo
+│   │   ├── urls.py               # URLs raíz del proyecto
+│   │   ├── wsgi.py               # Entrada WSGI (para Gunicorn u otros)
+│   │   └── asgi.py               # Entrada ASGI (para Django Channels o async)
+│   │
+│   ├── blog_app/                 # Tu aplicación principal
+│   │   ├── __init__.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── api.py
+│   │   ├── admin.py
+│   │   ├── urls.py
+│   │   ├── views.py
+│   │   └── permissions.py
+│   │
+│   ├── tests/                    # Pruebas unitarias y de integración
+│   │   ├── __init__.py
+│   │   ├── factories.py
+│   │   ├── test_api.py
+│   │   └── test_models.py
+│   │
+│   ├── manage.py                 # Script de gestión principal
+│   ├── pytest.py                 # Config opcional o entrada personalizada de pytest
+│   │
+│   ├── requirements/             # Dependencias por entorno
+│   │   ├── base.txt              # Dependencias comunes
+│   │   ├── prod.txt              # Dependencias de producción
+│   │   └── dev.txt               # Dependencias de desarrollo
+│   │
+│   ├── Dockerfile                # Dockerfile base de producción
+│   ├── Dockerfile-dev            # Dockerfile para entorno de desarrollo
+│   └── docker-compose.yml        # Orquestador de servicios (DB, Redis, etc.)
+│   ├── .env                      # Variables de entorno locales (desarrollo)
+│   ├── .env.prod                 # Variables de entorno para producción
+│   ├── start.sh                  # Script de inicio (ej. para Docker o entrypoint)
+│   ├── README.md                 #
+│   ├── .pre-commit-config.yaml   # Configuración de hooks (en raíz del repo)
+│   └── pyproject.toml            # Configuración de herramientas (Black, Ruff, etc.)
+│   └── .gitignore                # Archivo de git
 ```
 
 ---

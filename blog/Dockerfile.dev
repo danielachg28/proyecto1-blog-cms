@@ -19,16 +19,15 @@ RUN apt-get update && apt-get install -y \
     sudo \
  && rm -rf /var/lib/apt/lists/*
 
- # Dependencias de desarrollo
-COPY requirements.txt ./
-COPY requirements-dev.txt ./
+# Copiar carpeta de requirements
+COPY requirements/ /app/requirements/
+
+# Instalar dependencias
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements-dev.txt && \
-    rm -rf /root/.cache /tmp/*
+    pip install --no-cache-dir -r requirements/requirements-dev.txt
 
-
-# Copiar el resto del proyecto
-COPY . .
+# Copiar la app y script de arranque
+COPY blog/ /app/blog/
 
  # Instalar Cursor Server
  # RUN curl -fsSL https://install.cursor.so/latest | bash

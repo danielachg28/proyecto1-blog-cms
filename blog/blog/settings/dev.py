@@ -3,7 +3,7 @@ import os
 import dj_database_url  # pyright: ignore[reportMissingImports]
 
 from .base import *  # IMPORTANTE: trae ROOT_URLCONF, INSTALLED_APPS, MIDDLEWARE, etc.  # noqa: F403, F405
-from .base import BASE_DIR  # noqa: F401
+from .base import BASE_DIR
 
 
 # DEBUG
@@ -22,7 +22,7 @@ else:
 # DATABASES
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
 
-if DATABASE_URL.startswith("sqlite"):
+if DATABASE_URL and DATABASE_URL.startswith("sqlite"):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",

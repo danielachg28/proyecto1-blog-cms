@@ -3,7 +3,7 @@ import os
 import dj_database_url  # pyright: ignore[reportMissingImports]
 
 from .base import *  # IMPORTANTE: trae ROOT_URLCONF, INSTALLED_APPS, MIDDLEWARE, etc.  # noqa: F403, F405
-from .base import BASE_DIR  # noqa: F401
+from .base import BASE_DIR
 
 
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"

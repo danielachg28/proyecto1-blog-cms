@@ -1,0 +1,4 @@
+-r requirements-base.txt # includes the base.txt requirements file
+
+# Producción
+gunicorn==23.0.0
