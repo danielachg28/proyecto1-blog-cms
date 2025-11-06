@@ -10,11 +10,11 @@ pip install --no-cache-dir --upgrade pip
 pip install --no-cache-dir -r requirements.txt
 
 # Aplicar migraciones automáticamente
-python manage.py migrate --noinput
+python blog/manage.py migrate --noinput
 
 # 🔧 NUEVO: recopilar archivos estáticos antes de arrancar
 echo "Ejecutando collectstatic..."
-python manage.py collectstatic --noinput
+python blog/manage.py collectstatic --noinput
 
 # Arrancar Gunicorn usando el puerto asignado por Railway
 echo "Iniciando Gunicorn..."

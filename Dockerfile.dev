@@ -1,9 +1,11 @@
 # Dockerfile
-FROM python:3.12-slim
+FROM python:3.12
 
-# Evita archivos pyc y habilita logs en buffer
+# Variables de entorno
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV DJANGO_SETTINGS_MODULE=blog.settings.dev
+ENV PYTHONPATH=/app
 
 # Directorio de trabajo
 WORKDIR /app
@@ -17,14 +19,16 @@ RUN apt-get update && apt-get install -y \
     sudo \
  && rm -rf /var/lib/apt/lists/*
 
+ # Dependencias de desarrollo
+COPY requirements.txt ./
+COPY requirements-dev.txt ./
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements-dev.txt && \
+    rm -rf /root/.cache /tmp/*
 
-# Copiar requirements.txt e instalar dependencias
-COPY requirements.txt /app/
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
 
 # Copiar el resto del proyecto
-COPY . /app/
+COPY . .
 
  # Instalar Cursor Server
  # RUN curl -fsSL https://install.cursor.so/latest | bash

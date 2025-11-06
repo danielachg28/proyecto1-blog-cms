@@ -8,11 +8,11 @@ services:
       - "8000:8000"   # Django
       - "5678:5678"   # debugpy (para depurar desde Cursor)
     volumes:
-      - .:/app        # Sincroniza código local con contenedor
+      - .:/app       # Sincroniza código local con contenedor
     env_file:
       - .env
     environment:
       - DJANGO_SETTINGS_MODULE=blog.settings.dev
-      # - DJANGO_ALLOWED_HOSTS=0.0.0.0 localhost 127.0.0.1
-      # - DEBUG=True
+      - PYTHONPATH=/app         # para los imports de Django
+    working_dir: /app/blog
     command: python -Xfrozen_modules=off -m debugpy --listen 0.0.0.0:5678 manage.py runserver 0.0.0.0:8000  # para depurar desde Cursor
