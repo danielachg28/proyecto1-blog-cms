@@ -20,8 +20,8 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements/requirements-prod.txt
 
 # Copiar la app y script de arranque
-COPY blog/start.sh /app/start.sh
 COPY blog/blog/ /app/blog/
+COPY blog/start.sh /app/start.sh
 
 # Dar permisos de ejecución al script de arranque
 RUN chmod +x /app/start.sh
