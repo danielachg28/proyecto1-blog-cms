@@ -14,4 +14,4 @@ python manage.py collectstatic --noinput
 
 # Arrancar Gunicorn usando el puerto asignado por Railway
 echo "Iniciando Gunicorn..."
-gunicorn blog.blog.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --worker-tmp-dir /dev/shm
+gunicorn blog.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --worker-tmp-dir /dev/shm
